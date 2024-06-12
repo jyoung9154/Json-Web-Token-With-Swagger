@@ -65,9 +65,41 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         }catch (Exception e){
-            throw new ExceptionResponse(ErrorCode.JWT_ILLEGAL);
+            /* Filter에서 Exception 발생 시 */
+            setErrorResponse(response, e);
+        }
+    }
+    private void setErrorResponse(HttpServletResponse response, Exception e) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ErrorCode errorCode;
 
+        response.setHeader("Content-type", "application/json");
+        response.setCharacterEncoding("utf-8");
+
+        try {
+            errorCode = getErrorCode(e);
+            response.setStatus(errorCode.getHttpStatus().value());
+            response.getWriter().write(objectMapper.writeValueAsString(ExceptionEntity.toResponseEntity(errorCode, "").getBody()));
+        } catch (IOException ex) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.getWriter().write(objectMapper.writeValueAsString(ExceptionEntity.toResponseEntity(ErrorCode.INTERNAL_SERVER_ERROR, "").getBody()));
         }
     }
 
+    private ErrorCode getErrorCode(Exception e) {
+        if (e instanceof ExceptionResponse) {
+            return ((ExceptionResponse) e).getErrorCode();
+            /* 토큰 만료 */
+        } else if (e instanceof ExpiredJwtException) {
+            return new ExceptionResponse(ErrorCode.JWT_EXPIRED).getErrorCode();
+            /* 토큰 이슈 */
+        }else if (e instanceof MalformedJwtException  | e instanceof SignatureException | e instanceof UnsupportedJwtException) {
+            return new ExceptionResponse(ErrorCode.JWT_MALFORMED).getErrorCode();
+            /* 토큰 없음 */
+        } else if (e instanceof IllegalArgumentException | e instanceof ServletException) {
+            return new ExceptionResponse(ErrorCode.JWT_ILLEGAL).getErrorCode();
+        } else {
+            return new ExceptionResponse(ErrorCode.JWT_UNAUTH).getErrorCode();
+        }
+    }
 }
