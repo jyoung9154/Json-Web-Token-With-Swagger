@@ -11,10 +11,10 @@ public interface UserService {
 
     /* 회원가입 기능 */
     @SneakyThrows
-    String signup(SignupRequest user);
+    ResponseEntity<User> signup(SignupRequest user);
 
     /* 로그인 기능 */
-    String login(LoginRequest loginRequest);
+    ResponseEntity<JwtToken> login(LoginRequest loginRequest);
 
     /* DB 사용자 조회 기능 */
     User loadUserByUserId(String userId);

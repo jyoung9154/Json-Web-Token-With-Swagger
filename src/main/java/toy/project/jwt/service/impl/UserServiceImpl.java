@@ -2,15 +2,18 @@ package toy.project.jwt.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import toy.project.jwt.common.RegistrationEncryption;
 import toy.project.jwt.domain.User;
+import toy.project.jwt.dto.JwtToken;
 import toy.project.jwt.dto.LoginRequest;
 import toy.project.jwt.dto.SignupRequest;
 import toy.project.jwt.exception.ErrorCode;
 import toy.project.jwt.exception.ExceptionResponse;
+import toy.project.jwt.jwt.JwtUtil;
 import toy.project.jwt.repository.UserRepository;
 import toy.project.jwt.service.UserService;
 
@@ -23,12 +26,13 @@ public class UserServiceImpl implements UserService {
     /* 기능 객체 */
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     private final RegistrationEncryption registrationEncryption;
 
     /* 회원 가입 기능 */
     @Override
     @SneakyThrows
-    public String signup(SignupRequest signupReq) {
+    public ResponseEntity<User> signup(SignupRequest signupReq) {
 
         /* 회원가입 중복 확인 - ID 중복 */
         if (userRepository.existsByUserId(signupReq.getUserId())) {
@@ -69,7 +73,7 @@ public class UserServiceImpl implements UserService {
                 .regNo(encryptedRegNo)
                 .build();
 
-            return userRepository.save(newUser).getUserId() + " : 회원등록이 되었습니다.";
+            return ResponseEntity.ok().body(userRepository.save(newUser));
 
         }catch(Exception e) {
             throw new ExceptionResponse(ErrorCode.DB_FAILD_SAVE,"비정상적인 ID 및 패스워드로 DB 저장 가능한 문자열 길이 초과");
@@ -78,23 +82,27 @@ public class UserServiceImpl implements UserService {
 
     /* 로그인 기능 */
     @Override
-    public String login(LoginRequest loginRequest) {
+    public ResponseEntity<JwtToken> login(LoginRequest loginRequest) {
 
         /* 사용자 확인 */
         User user = loadUserByUserId(loginRequest.getUserId());
 
         /* 패스워드 확인 */
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return "비밀번호가 틀렸습니다";
+            throw new ExceptionResponse(ErrorCode.INVALID_PASSWORD);
         }
 
-        return "로그인이 되었습니다.";
+        /* 토큰 생성 */
+        String accessToken = jwtUtil.createAccessToken(user.getUserId(),"access");
+        String refreshToken = jwtUtil.createRefreshToken(user.getUserId());
+
+        return ResponseEntity.ok().body(new JwtToken(accessToken, refreshToken));
 
     }
 
     /* DB 사용자 조회 */
     public User loadUserByUserId(String userId) throws UsernameNotFoundException {
-        return userRepository.findByUserId(userId).orElseThrow();
+        return userRepository.findByUserId(userId).orElseThrow(() -> new ExceptionResponse(ErrorCode.USER_NOT_FONUD));
     }
 
     /* 주민등록번호 검증 */
