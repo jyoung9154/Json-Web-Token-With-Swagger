@@ -1,0 +1,16 @@
+# H2 계정 정보
+spring:
+  datasource:
+    username: sa
+
+# JWT
+jwt:
+  secret-key: JarvisVillainsIsACompanyThatProvidesConvenientAItpoweredAccountingServicesIncludingAccountingManagementTaxFilingAndTaskManagement
+  # 토큰 만료시간 : 30분 / 7일
+  expire-time : 1800000
+  refresh-time : 604800000
+
+# Base64 AES 양방향 암호화
+encryption:
+    key: JaeYoungPark_Jwt
+    iv : Jwt_ParkJaeYoung
