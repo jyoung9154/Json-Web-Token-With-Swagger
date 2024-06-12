@@ -5,7 +5,7 @@ spring:
 
 # JWT
 jwt:
-  secret-key: JarvisVillainsIsACompanyThatProvidesConvenientAItpoweredAccountingServicesIncludingAccountingManagementTaxFilingAndTaskManagement
+  secret-key: JWTTestSecretKey
   # 토큰 만료시간 : 30분 / 7일
   expire-time : 1800000
   refresh-time : 604800000
