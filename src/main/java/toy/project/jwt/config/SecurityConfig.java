@@ -38,7 +38,7 @@ public class SecurityConfig {
                 /* 접근 권한 설정 */
                 .authorizeRequests()
                     /* 허용하는 사이트 */
-                    .requestMatchers("/jwt/signup", "/jwt/login", "/jwt/**", "/api-docs/**").permitAll()
+                    .requestMatchers("/jwt/signup", "/jwt/login").permitAll()
                     /* H2 DB 허용 */
                     .requestMatchers(PathRequest.toH2Console()).permitAll()
                     .and()

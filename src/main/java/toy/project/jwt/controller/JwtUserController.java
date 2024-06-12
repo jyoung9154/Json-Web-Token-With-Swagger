@@ -35,7 +35,7 @@ public class JwtUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.login(loginRequest).getBody());
     }
 
-    @GetMapping("/jwt")
+    @GetMapping("/token")
     public String jwt(HttpServletRequest request) {
         /* 헤더에 토큰 받기 */
         String token = request.getHeader("Authorization").replace("Bearer ", "");
