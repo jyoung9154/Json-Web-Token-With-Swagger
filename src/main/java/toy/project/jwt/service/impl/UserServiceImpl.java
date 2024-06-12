@@ -9,6 +9,8 @@ import toy.project.jwt.common.RegistrationEncryption;
 import toy.project.jwt.domain.User;
 import toy.project.jwt.dto.LoginRequest;
 import toy.project.jwt.dto.SignupRequest;
+import toy.project.jwt.exception.ErrorCode;
+import toy.project.jwt.exception.ExceptionResponse;
 import toy.project.jwt.repository.UserRepository;
 import toy.project.jwt.service.UserService;
 
@@ -30,9 +32,8 @@ public class UserServiceImpl implements UserService {
 
         /* 회원가입 중복 확인 - ID 중복 */
         if (userRepository.existsByUserId(signupReq.getUserId())) {
-            return "아이디 중복 발생";
+            throw new ExceptionResponse(ErrorCode.USER_DUPLICATION_ID);
         }
-        /* 회원가입 중복 확인 - 주민등록번호 중복 */
 
         /* 사용자 이름으로 우선 조회 */
         Optional<User> user = userRepository.findByName(signupReq.getName());
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
             /* 주민등록번호 중복 확인*/
             if (signupReq.getRegNo().equals(userRegNo)) {
-                return "등록된 사용자 입니다.";
+                throw new ExceptionResponse(ErrorCode.USER_DUPLICATION_REG,"등록된 사용자 ID: " + user.get().getUserId());
 
             }
         }
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
         /* 민감정보 - 주민등록번호 검사 및 양방향 암호화 AES */
         if(!validateRegNo(signupReq.getRegNo())){
-            return "주민등록번호를 다시 확인해주세요";
+            throw new ExceptionResponse(ErrorCode.USER_REG_ERROR);
         }
         String encryptedRegNo = registrationEncryption.encryptRegistrationNumber(signupReq.getRegNo());
 
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
             return userRepository.save(newUser).getUserId() + " : 회원등록이 되었습니다.";
 
         }catch(Exception e) {
-            return "데이터 저장에 실패하였습니다.";
+            throw new ExceptionResponse(ErrorCode.DB_FAILD_SAVE,"비정상적인 ID 및 패스워드로 DB 저장 가능한 문자열 길이 초과");
         }
     }
 
