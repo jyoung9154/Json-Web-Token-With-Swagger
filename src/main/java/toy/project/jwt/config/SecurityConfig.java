@@ -22,6 +22,7 @@ public class SecurityConfig {
 
     /* 기능 객체 */
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
@@ -37,13 +38,16 @@ public class SecurityConfig {
                 /* 접근 권한 설정 */
                 .authorizeRequests()
                     /* 허용하는 사이트 */
-                    .requestMatchers("/jwt/signup", "/jwt/login").permitAll()
+                    .requestMatchers("/jwt/signup", "/jwt/login", "/jwt/**", "/api-docs/**").permitAll()
                     /* H2 DB 허용 */
                     .requestMatchers(PathRequest.toH2Console()).permitAll()
                     .and()
                 /* 시큐리티 세션 미사용 */
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                /* 필터 설정 */
+                .addFilterBefore(new JwtAuthFilter(userService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
