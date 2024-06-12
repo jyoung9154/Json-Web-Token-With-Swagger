@@ -20,11 +20,13 @@ public class JwtUserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
+    /* 회원가입 기능 */
     @PostMapping("/signup")
     public ResponseEntity<User> signup(@RequestBody SignupRequest signupRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.signup(signupRequest).getBody());
     }
 
+    /* 로그인 기능 */
     @PostMapping("/login")
     public ResponseEntity<JwtToken> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.login(loginRequest).getBody());
