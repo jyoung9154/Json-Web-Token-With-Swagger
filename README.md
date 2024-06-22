@@ -24,6 +24,7 @@
 * ### JWT 토큰 관련 
   * Refresh Token 발급은 하고 있으나 별도의 저장 및 갱신 처리는 하지 않음 
   * 단, Access Token 외 접속 불가 처리
+    * 참고사항 : application-KEY.yml 파일은 설명을 위해 올렸으나 실제로 ignore 처리 되어있음
 ***
 
 ## 제한사항
