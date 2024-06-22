@@ -19,9 +19,9 @@ public class SignupRequest {
     @Schema(description = "비밀번호", example = "password123")
     private String password;
 
-    @Schema(description = "이름", example = "조조")
+    @Schema(description = "이름", example = "재영")
     private String name;
 
-    @Schema(description = "주민등록번호", example = "810326-2715702")
+    @Schema(description = "주민등록번호", example = "920709-1000000")
     private String regNo;
 }

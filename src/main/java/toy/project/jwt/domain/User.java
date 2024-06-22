@@ -26,11 +26,11 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    @Schema(description = "이름", example = "조조")
+    @Schema(description = "이름", example = "재영")
     private String name;
 
     @Column(nullable = false)
-    @Schema(description = "주민등록번호", example = "810326-2715702")
+    @Schema(description = "주민등록번호", example = "920709-1000000")
     private String regNo;
 
 }
